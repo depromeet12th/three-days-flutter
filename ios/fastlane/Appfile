@@ -1,0 +1,8 @@
+app_identifier("com.depromeet.threeDays") # The bundle identifier of your app
+apple_id("junhaesung0428@hanmail.net") # Your Apple Developer Portal username
+
+itc_team_id("1767431") # App Store Connect Team ID
+team_id("58FMWZQ9G4") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
