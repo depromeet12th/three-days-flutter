@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:three_days/auth/login_screen.dart';
+import 'package:three_days/splash_screen.dart';
 
 import 'home_page.dart';
 
@@ -22,7 +24,16 @@ class ThreeDaysApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      onGenerateRoute: (RouteSettings settings) {
+        if (settings.name == '/') {
+          return MaterialPageRoute(builder: (context) => SplashScreen());
+        } else if (settings.name == '/home') {
+          return MaterialPageRoute(builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'));
+        } else if (settings.name == '/login') {
+          return MaterialPageRoute(builder: (context) => LoginScreen());
+        }
+      },
     );
   }
 }
