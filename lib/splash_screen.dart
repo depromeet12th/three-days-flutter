@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:three_days/auth/login_screen.dart';
-import 'package:three_days/home_page.dart';
+import 'package:three_days/home/home_page.dart';
 
 import 'auth/session_repository.dart';
 
@@ -26,7 +26,7 @@ class SplashScreen extends StatelessWidget {
         if (!isLoggedIn) {
           return LoginScreen();
         } else {
-          return MyHomePage(title: '');
+          return HomePage();
         }
       },
     );
