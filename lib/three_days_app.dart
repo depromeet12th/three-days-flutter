@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:three_days/auth/login_screen.dart';
 import 'package:three_days/splash_screen.dart';
 
-import 'home_page.dart';
+import 'home/home_page.dart';
 
 class ThreeDaysApp extends StatelessWidget {
   const ThreeDaysApp({super.key});
@@ -29,7 +29,7 @@ class ThreeDaysApp extends StatelessWidget {
         if (settings.name == '/') {
           return MaterialPageRoute(builder: (context) => SplashScreen());
         } else if (settings.name == '/home') {
-          return MaterialPageRoute(builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'));
+          return MaterialPageRoute(builder: (context) => HomePage());
         } else if (settings.name == '/login') {
           return MaterialPageRoute(builder: (context) => LoginScreen());
         }
