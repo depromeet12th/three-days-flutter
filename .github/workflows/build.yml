@@ -1,0 +1,28 @@
+name: build-iOS-app
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'develop'
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+      - name: Fetch env file from secrets
+        id: fetch_env_file
+        uses: timheuer/base64-to-file@v1
+        with:
+          encodedString: ${{ secrets.ENV_FILE }}
+          fileName: '.env'
+      - name: Move credential file to repository location
+        run: mv ${{ steps.fetch_env_file.outputs.filePath }} ${{ github.workspace }}/
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build ios --release --no-codesign
