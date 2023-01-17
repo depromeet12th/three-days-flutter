@@ -3,7 +3,7 @@ class LoginResponse {
   final String name;
   final String certificationSubject;
   final bool notificationConsent;
-  final Map<String, dynamic> resource;
+  final String resource;
   final LoginToken token;
 
   LoginResponse({
@@ -21,7 +21,7 @@ class LoginResponse {
       name: json['name'] as String,
       certificationSubject: json['certificationSubject'] as String,
       notificationConsent: json['notificationConsent'] as bool,
-      resource: json['resource'],
+      resource: json['resource'] as String,
       token: LoginToken.fromJson(json['token']),
     );
   }
