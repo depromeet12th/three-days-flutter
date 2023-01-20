@@ -6,8 +6,13 @@ import '../data/three_days_api.dart';
 import 'login_type.dart';
 
 class LoginRepository {
-  final _sessionRepository = SessionRepository();
-  final _threeDaysApi = const ThreeDaysApi();
+  final ThreeDaysApi threeDaysApi;
+  final SessionRepository sessionRepository;
+
+  LoginRepository({
+    required this.threeDaysApi,
+    required this.sessionRepository,
+  });
 
   Future<void> login(LoginType loginType) async {
     switch (loginType) {
@@ -48,7 +53,9 @@ class LoginRepository {
       throw Exception('Failed to login with kakao');
     }
     final accessToken = token.accessToken;
-    final response = await _threeDaysApi.loginWithKakao(kakaoAccessToken: accessToken);
+    final response = await threeDaysApi.loginWithKakao(
+      kakaoAccessToken: accessToken,
+    );
     if (kDebugMode) {
       print('loginWithKakao response: $response');
     }
@@ -57,7 +64,7 @@ class LoginRepository {
         print('Failed to get accessToken. response: $response');
       }
     }
-    _sessionRepository.saveAccessToken(response.data!.token.accessToken);
+    sessionRepository.saveAccessToken(response.data!.token.accessToken);
   }
 
   /// 애플 계정 으로 로그인
