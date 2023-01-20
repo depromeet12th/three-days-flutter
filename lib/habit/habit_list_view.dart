@@ -96,9 +96,7 @@ class HabitListView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
         onTapUp: (_) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('습관 만들기'),
-          ));
+          Navigator.of(context).pushNamed('/habit/add');
         },
         child: SizedBox(
           height: 140,

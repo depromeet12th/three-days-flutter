@@ -5,10 +5,11 @@ import 'package:three_days/domain/habit_repository.dart';
 
 import '../design/sub_title_text.dart';
 import '../design/three_days_colors.dart';
-import '../design/three_days_date_range_field.dart';
 import '../design/three_days_text_form_field.dart';
 import '../design/time_selector_widget.dart';
+import '../domain/day_of_week.dart';
 import '../domain/habit.dart';
+import '../domain/habit_color.dart';
 
 class HabitAddView extends StatefulWidget {
   const HabitAddView({super.key});
@@ -66,28 +67,28 @@ class _HabitAddViewState extends State<HabitAddView> {
                 onPressed: !canSubmit
                     ? null
                     : () async {
-                  final goal = await habitRepository.save(
-                    Habit(
-                      title: goalTextEditingController.value.text,
-                    ),
-                  );
-                  if (kDebugMode) {
-                    print('createdGoal: $goal');
-                  }
-                  if (!mounted) {
-                    return;
-                  }
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/habit/list',
-                        (route) => route.settings.name == '/habit/list',
-                  );
-                },
+                        final goal = await habitRepository.save(
+                          Habit(
+                            title: goalTextEditingController.value.text,
+                          ),
+                        );
+                        if (kDebugMode) {
+                          print('createdGoal: $goal');
+                        }
+                        if (!mounted) {
+                          return;
+                        }
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/habit/list',
+                          (route) => route.settings.name == '/habit/list',
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ThreeDaysColors.primary,
                   minimumSize: const Size.fromHeight(50),
                 ),
                 child: const Text(
-                  '목표 만들기',
+                  '습관 만들기',
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -112,7 +113,7 @@ class _HabitAddViewState extends State<HabitAddView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '짝심목표 만들기',
+              '습관을 만들어 볼까요?',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -122,11 +123,11 @@ class _HabitAddViewState extends State<HabitAddView> {
               height: 35,
             ),
 
-            /// 목표
-            const ThreeDaysSubTitleText(data: '목표'),
+            /// 습관 이름
+            const ThreeDaysSubTitleText(data: '습관명'),
             ThreeDaysTextFormField(
               controller: goalTextEditingController,
-              hintText: '짝심목표를 알려주세요',
+              hintText: '어떤 습관을 원하시나요?',
               maxLength: maxLengthOfTitle,
               onChanged: (value) {
                 setState(() {
@@ -136,56 +137,29 @@ class _HabitAddViewState extends State<HabitAddView> {
             ),
             const SizedBox(height: 25),
 
-            /// 목표 기간
-            Row(
-              children: [
-                const ThreeDaysSubTitleText(data: '목표 기간'),
-                const Spacer(),
-                Switch(
-                  value: dateRangeEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      dateRangeEnabled = value;
-                    });
-                  },
-                )
-              ],
-            ),
-            ThreeDaysDateRangeField(
-              visible: dateRangeEnabled,
-              startDate: startDate,
-              endDate: endDate,
-              onTapUp: (_) async {
-                final dateTimeRange = await showDateRangePicker(
-                  context: context,
-                  firstDate: DateTime.now().subtract(const Duration(days: 36500)),
-                  lastDate: DateTime.now().add(const Duration(days: 36500)),
-                  currentDate: DateTime.now(),
-                  builder: (context, Widget? child) => Theme(
-                    data: Theme.of(context).copyWith(
-                      appBarTheme: Theme.of(context).appBarTheme.copyWith(
-                        backgroundColor: Colors.blue,
-                      ),
+            /// 실천 요일
+            ThreeDaysSubTitleText(data: '실천 요일(최소 3일 이상)'),
+            Wrap(
+              spacing: 7.0,
+              children: DayOfWeek.values
+                  .map(
+                    (e) => Container(
+                      color: ThreeDaysColors.grey100,
+                      child: SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: Center(
+                            child: Text(e.getDisplayName()),
+                          )),
                     ),
-                    child: child!,
-                  ),
-                );
-                if (kDebugMode) {
-                  print('dateTimeRange: $dateTimeRange');
-                }
-                if (dateTimeRange != null) {
-                  setState(() {
-                    startDate = dateTimeRange.start;
-                    endDate = dateTimeRange.end;
-                  });
-                }
-              },
+                  )
+                  .toList(),
             ),
 
-            /// 수행 시간
+            /// 푸시 알림
             Row(
               children: [
-                const ThreeDaysSubTitleText(data: '수행 시간'),
+                const ThreeDaysSubTitleText(data: '푸시 알림'),
                 const Spacer(),
                 Switch(
                   value: timeRangeEnabled,
@@ -196,29 +170,6 @@ class _HabitAddViewState extends State<HabitAddView> {
                   },
                 ),
               ],
-            ),
-            TimeSelectorWidget(
-              visible: timeRangeEnabled,
-              onTabInside: (event) async {
-                var pickedTime = await showTimePicker(
-                  context: context,
-                  initialTime: const TimeOfDay(hour: 8, minute: 0),
-                );
-                setState(() {
-                  remindTime = pickedTime;
-                  if (kDebugMode) {
-                    print(remindTime);
-                  }
-                });
-              },
-              timeOfDay: remindTime,
-            ),
-            const SizedBox(height: 25),
-
-            /// Push 알림 설정
-            const ThreeDaysSubTitleText(data: 'Push 알림 설정'),
-            const SizedBox(
-              height: 5,
             ),
             TimeSelectorWidget(
               visible: true,
@@ -239,6 +190,28 @@ class _HabitAddViewState extends State<HabitAddView> {
             const ThreeDaysTextFormField(
               hintText: 'Push 알림 내용을 입력해주세요',
               maxLength: maxLengthOfNotificationContent,
+            ),
+
+            /// 색상
+            ThreeDaysSubTitleText(data: '색상'),
+            Container(
+              height: 40,
+              child: GridView.count(
+                childAspectRatio: 2.5,
+                crossAxisCount: 3,
+                crossAxisSpacing: 10.0,
+                children: HabitColor.values
+                    .map(
+                      (e) => Container(
+                        color: e.getColor(),
+                        child: Icon(
+                          Icons.check,
+                          color: ThreeDaysColors.white,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ],
         ),

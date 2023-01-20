@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:three_days/auth/login_screen.dart';
-import 'package:three_days/home/home_page.dart';
 
+import 'auth/session/session_cubit.dart';
 import 'auth/session_repository.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -11,6 +10,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionRepository = RepositoryProvider.of<SessionRepository>(context);
+    final sessionCubit = BlocProvider.of<SessionCubit>(context);
     return FutureBuilder(
       future: sessionRepository.isLoggedIn(),
       builder: (context, snapshot) {
@@ -24,10 +24,11 @@ class SplashScreen extends StatelessWidget {
         }
         final isLoggedIn = snapshot.data ?? false;
         if (!isLoggedIn) {
-          return LoginScreen();
+          sessionCubit.logout();
         } else {
-          return HomePage();
+          sessionCubit.login();
         }
+        return Scaffold(body: Center(child: CircularProgressIndicator()));
       },
     );
   }

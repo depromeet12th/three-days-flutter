@@ -12,7 +12,7 @@ class SessionCubit extends Cubit<SessionState> {
   SessionCubit({
     required this.loginRepository,
     required this.logoutRepository,
-  }) : super(LogoutState());
+  }) : super(UnknownState());
 
   void login() {
     emit(LoginState());

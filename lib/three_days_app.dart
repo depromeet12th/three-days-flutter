@@ -55,16 +55,6 @@ class ThreeDaysApp extends StatelessWidget {
             primarySwatch: Colors.blue,
           ),
           home: ThreeDaysNavigator(),
-          // initialRoute: '/',
-          onGenerateRoute: (RouteSettings settings) {
-            if (settings.name == '/') {
-              return MaterialPageRoute(builder: (context) => SplashScreen());
-            } else if (settings.name == '/home') {
-              return MaterialPageRoute(builder: (context) => HomePage());
-            } else if (settings.name == '/login') {
-              return MaterialPageRoute(builder: (context) => LoginScreen());
-            }
-          },
         ),
       ),
     );
