@@ -8,21 +8,27 @@ import '../design/three_days_colors.dart';
 import '../design/three_days_text_form_field.dart';
 import '../design/time_selector_widget.dart';
 import '../domain/day_of_week.dart';
-import '../domain/habit/habit_add_cubit.dart';
-import '../domain/habit/habit_add_state.dart';
-import '../domain/habit_add_request_vo.dart';
+import '../domain/habit.dart';
+import '../domain/habit/habit_update_cubit.dart';
+import '../domain/habit/habit_update_state.dart';
 import '../domain/habit_color.dart';
+import '../domain/habit_update_request_vo.dart';
 
-class HabitAddView extends StatefulWidget {
-  const HabitAddView({super.key});
+class HabitUpdateView extends StatefulWidget {
+  final Habit habit;
+
+  const HabitUpdateView({
+    super.key,
+    required this.habit,
+  });
 
   @override
   State<StatefulWidget> createState() {
-    return _HabitAddViewState();
+    return _HabitUpdateViewState();
   }
 }
 
-class _HabitAddViewState extends State<HabitAddView> {
+class _HabitUpdateViewState extends State<HabitUpdateView> {
   /// 습관명 최대 글자수
   static const maxLengthOfTitle = 15;
 
@@ -34,22 +40,23 @@ class _HabitAddViewState extends State<HabitAddView> {
   Set<DayOfWeek> dayOfWeeks = {
     DayOfWeek.monday,
     DayOfWeek.tuesday,
-    DayOfWeek.wednesday
+    DayOfWeek.wednesday,
   };
-  late HabitAddRequestVo habitAddRequestVo;
+  late HabitUpdateRequestVo habitUpdateRequestVo;
 
   final habitTextEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    habitAddRequestVo = HabitAddRequestVo(
+    habitUpdateRequestVo = HabitUpdateRequestVo(
       emoji: '💙',
-      title: '',
+      title: widget.habit.title,
       dayOfWeeks: dayOfWeeks,
       notificationRequestVo: null,
       color: HabitColor.green,
     );
+    habitTextEditingController.text = widget.habit.title;
   }
 
   @override
@@ -67,14 +74,14 @@ class _HabitAddViewState extends State<HabitAddView> {
               centerTitle: true,
             ),
           ),
-          body: BlocBuilder<HabitAddCubit, HabitAddState>(
+          body: BlocBuilder<HabitUpdateCubit, HabitUpdateState>(
             builder: (context, state) {
-              if (state is HabitAddSuccessState) {
+              if (state is HabitUpdateSuccessState) {
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   Navigator.of(context).pop(state.habitId);
                 });
               }
-              if (state is HabitAddFailureState) {
+              if (state is HabitUpdateFailureState) {
                 print(state);
               }
               return Column(
@@ -96,10 +103,11 @@ class _HabitAddViewState extends State<HabitAddView> {
                     child: _getFormWidgets(context),
                   ),
 
-                  /// 습관 만들기 버튼
-                  _getAddHabitButton(
-                    habitAddCubit: BlocProvider.of<HabitAddCubit>(context),
-                    habitAddState: state,
+                  /// 습관 수정하기 버튼
+                  _getUpdateHabitButton(
+                    habitUpdateCubit:
+                        BlocProvider.of<HabitUpdateCubit>(context),
+                    habitUpdateState: state,
                   ),
                 ],
               );
@@ -140,12 +148,12 @@ class _HabitAddViewState extends State<HabitAddView> {
               maxLength: maxLengthOfTitle,
               onChanged: (value) {
                 setState(() {
-                  habitAddRequestVo = habitAddRequestVo.copyOf(
+                  habitUpdateRequestVo = habitUpdateRequestVo.copyOf(
                     title: habitTextEditingController.value.text,
                   );
                 });
-                BlocProvider.of<HabitAddCubit>(context)
-                    .validate(habitAddRequestVo);
+                BlocProvider.of<HabitUpdateCubit>(context)
+                    .validate(habitUpdateRequestVo: habitUpdateRequestVo);
               },
             ),
             const SizedBox(height: 25),
@@ -232,12 +240,12 @@ class _HabitAddViewState extends State<HabitAddView> {
     );
   }
 
-  /// 습관 만들기
-  Widget _getAddHabitButton({
-    required HabitAddCubit habitAddCubit,
-    required HabitAddState habitAddState,
+  /// 습관 수정하기
+  Widget _getUpdateHabitButton({
+    required HabitUpdateCubit habitUpdateCubit,
+    required HabitUpdateState habitUpdateState,
   }) {
-    bool canSubmit = habitAddState is HabitAddReadyState;
+    bool canSubmit = habitUpdateState is HabitUpdateReadyState;
     return Padding(
       padding: const EdgeInsets.only(
         left: 20.0,
@@ -248,9 +256,12 @@ class _HabitAddViewState extends State<HabitAddView> {
         onPressed: !canSubmit
             ? null
             : () {
-                habitAddCubit.submit(habitAddRequestVo);
+                habitUpdateCubit.submit(
+                  habitId: widget.habit.habitId,
+                  habitUpdateRequestVo: habitUpdateRequestVo,
+                );
                 if (kDebugMode) {
-                  print('createdHabit: $habitAddRequestVo');
+                  print('updatedHabit: $habitUpdateRequestVo');
                 }
                 if (!mounted) {
                   return;
@@ -261,7 +272,7 @@ class _HabitAddViewState extends State<HabitAddView> {
           minimumSize: const Size.fromHeight(50),
         ),
         child: const Text(
-          '습관 만들기',
+          '습관 수정하기',
           style: TextStyle(
             fontSize: 16,
           ),

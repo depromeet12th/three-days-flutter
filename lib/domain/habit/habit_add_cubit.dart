@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:three_days/domain/habit_add_request_vo.dart';
 
-import '../../domain/habit_repository.dart';
+import '../habit_repository.dart';
 import 'habit_add_state.dart';
 
 class HabitAddCubit extends Cubit<HabitAddState> {

@@ -42,6 +42,7 @@ dependencies:
   flutter_bloc: ^8.1.1
   equatable: ^2.0.5
   intl: ^0.18.0
+  flutter_svg: ^1.1.6
 
 dev_dependencies:
   flutter_test:

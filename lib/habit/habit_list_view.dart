@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:three_days/auth/unauthorized_exception.dart';
 import 'package:three_days/domain/habit_repository.dart';
+import 'package:three_days/domain/habit_status.dart';
 
 import '../domain/habit.dart';
+import 'habit_card.dart';
 
 class HabitListView extends StatefulWidget {
   const HabitListView({super.key});
@@ -13,7 +17,6 @@ class HabitListView extends StatefulWidget {
 }
 
 class _HabitListViewState extends State<HabitListView> {
-
   late int? createdHabitId;
   late int? updatedHabitId;
   late int? deletedHabitId;
@@ -30,7 +33,7 @@ class _HabitListViewState extends State<HabitListView> {
   Widget build(BuildContext context) {
     final habitRepository = RepositoryProvider.of<HabitRepository>(context);
     return FutureBuilder<List<Habit>>(
-      future: habitRepository.findAll(),
+      future: habitRepository.findByStatus(habitStatus: HabitStatus.active),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.none ||
             snapshot.connectionState == ConnectionState.waiting) {
@@ -38,7 +41,9 @@ class _HabitListViewState extends State<HabitListView> {
         }
         if (snapshot.hasError) {
           if (snapshot.error is UnauthorizedException) {
-            print(snapshot.error.toString());
+            if (kDebugMode) {
+              print(snapshot.error.toString());
+            }
             return _getLoading();
           }
           return Center(child: Text(snapshot.error.toString()));
@@ -87,7 +92,8 @@ class _HabitListViewState extends State<HabitListView> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Column(
+            Wrap(
+              runSpacing: 16.0,
               children: habits.map((e) => _getHabitCard(context, e)).toList(),
             ),
             _getAddHabitCard(context),
@@ -98,14 +104,9 @@ class _HabitListViewState extends State<HabitListView> {
   }
 
   Widget _getHabitCard(BuildContext context, Habit habit) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: SizedBox(
-        height: 140,
-        child: Center(
-          child: Text(habit.title),
-        ),
-      ),
+    return HabitCard(
+      habit: habit,
+      onKebabMenuPressed: _showModalBottomSheet,
     );
   }
 
@@ -114,7 +115,8 @@ class _HabitListViewState extends State<HabitListView> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
         onTapUp: (_) async {
-          final habitId = await Navigator.of(context).pushNamed('/habit/add') as int?;
+          final habitId =
+              await Navigator.of(context).pushNamed('/habit/add') as int?;
           if (habitId != null) {
             setState(() {
               createdHabitId = habitId;
@@ -134,4 +136,172 @@ class _HabitListViewState extends State<HabitListView> {
       ),
     );
   }
+
+  /// habit_widget 에서 호출하는 콜백 메서드.
+  /// 업데이트 / 삭제하고나서 목록을 갱신하기 위해 사용함
+  void _showModalBottomSheet(BuildContext context, Habit habit) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        final habitRepository = RepositoryProvider.of<HabitRepository>(context);
+        return SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: SvgPicture.asset(
+                    'images/icon_pencil.svg',
+                    width: 16,
+                    height: 16,
+                  ),
+                ),
+                title: const Text(
+                  '수정하기',
+                  style: TextStyle(
+                    color: Color.fromRGBO(0x73, 0x73, 0x73, 1.0),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () async {
+                  await Navigator.of(context).pushNamed('/habit/${habit.habitId}/edit');
+                  if (!mounted) {
+                    return;
+                  }
+                  Navigator.of(context).pop(HabitActionType.edit);
+                },
+              ),
+              ListTile(
+                leading: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: SvgPicture.asset(
+                    'images/icon_bin.svg',
+                    width: 16,
+                    height: 16,
+                  ),
+                ),
+                title: const Text(
+                  '삭제하기',
+                  style: TextStyle(
+                    color: Color.fromRGBO(0x73, 0x73, 0x73, 1.0),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () {
+                  showDialog<DeleteActionType>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      titlePadding: const EdgeInsets.only(top: 40),
+                      title: const Text(
+                        '정말 삭제하시겠어요?',
+                        textAlign: TextAlign.center,
+                      ),
+                      content: const Text(
+                        '목표를 삭제하게되면\n히스토리까지 모두 삭제되며 복구되지 않아요',
+                        textAlign: TextAlign.center,
+                      ),
+                      actionsAlignment: MainAxisAlignment.center,
+                      actions: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            const Color.fromRGBO(0xEF, 0xEF, 0xEF, 1.0),
+                            elevation: 0.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () => Navigator.of(context)
+                              .pop(DeleteActionType.cancel),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 10,
+                            ),
+                            child: Text(
+                              '그냥 둘게요',
+                              style: TextStyle(
+                                color: Color.fromRGBO(0x77, 0x77, 0x77, 1.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context)
+                              .pop(DeleteActionType.delete),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 10,
+                            ),
+                            child: Text('삭제할게요'),
+                          ),
+                        ),
+                      ],
+                      insetPadding: const EdgeInsets.symmetric(vertical: 28),
+                    ),
+                  ).then((value) async {
+                    if (value != null && value == DeleteActionType.delete) {
+                      await habitRepository.delete(habitId: habit.habitId);
+                      if (!mounted) {
+                        return;
+                      }
+                      Navigator.of(context).pop(HabitActionType.delete);
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {
+      HabitActionType? result = value as HabitActionType?;
+      if (result == null) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.check,
+                  color: Color(0xff00ae5A),
+                ),
+                Text(
+                    '짝심목표가 ${result == HabitActionType.edit ? '수정' : '삭제'}되었어요'),
+              ],
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      if (result == HabitActionType.delete) {
+        setState(() {
+        });
+      }
+    });
+  }
+}
+
+enum HabitActionType {
+  edit,
+  delete,
+}
+
+enum DeleteActionType {
+  delete,
+  cancel,
 }
