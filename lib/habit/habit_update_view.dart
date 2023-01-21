@@ -8,11 +8,11 @@ import '../design/three_days_colors.dart';
 import '../design/three_days_text_form_field.dart';
 import '../design/time_selector_widget.dart';
 import '../domain/day_of_week.dart';
-import '../domain/habit.dart';
+import '../domain/habit/habit.dart';
+import '../domain/habit/habit_color.dart';
 import '../domain/habit/habit_update_cubit.dart';
 import '../domain/habit/habit_update_state.dart';
-import '../domain/habit_color.dart';
-import '../domain/habit_update_request_vo.dart';
+import '../domain/habit/habit_update_request_vo.dart';
 
 class HabitUpdateView extends StatefulWidget {
   final Habit habit;

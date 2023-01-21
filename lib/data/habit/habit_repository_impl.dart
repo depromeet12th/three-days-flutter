@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:three_days/util/extensions.dart';
 
-import '../../auth/session_repository.dart';
-import '../../domain/habit.dart';
-import '../../domain/habit_add_request_vo.dart';
-import '../../domain/habit_repository.dart';
-import '../../domain/habit_status.dart';
-import '../../domain/habit_update_request_vo.dart';
+import '../../domain/habit/habit.dart';
+import '../../domain/habit/habit_add_request_vo.dart';
+import '../../domain/habit/habit_repository.dart';
+import '../../domain/habit/habit_status.dart';
+import '../../domain/habit/habit_update_request_vo.dart';
 import '../three_days_api.dart';
 import 'habit_add_request.dart';
 import 'habit_assembler.dart';
@@ -14,12 +13,10 @@ import 'habit_update_request.dart';
 
 class HabitRepositoryImpl implements HabitRepository {
   final ThreeDaysApi threeDaysApi;
-  final SessionRepository sessionRepository;
   final habitAssembler = HabitAssembler();
 
   HabitRepositoryImpl({
     required this.threeDaysApi,
-    required this.sessionRepository,
   });
 
   @override

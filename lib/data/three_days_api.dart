@@ -1,19 +1,19 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
-import 'package:three_days/auth/login_type.dart';
 import 'package:http/http.dart' as http;
-import 'package:three_days/auth/session_repository.dart';
-import 'package:three_days/data/habit/habit_update_request.dart';
-import 'package:three_days/data/login_response.dart';
-import 'package:three_days/data/member_response.dart';
-import 'package:three_days/data/three_days_api_exception.dart';
+import 'package:http/http.dart';
 
+import '../auth/login_type.dart';
+import '../auth/session_repository.dart';
 import '../auth/unauthorized_exception.dart';
-import '../domain/habit_status.dart';
+import '../domain/habit/habit_status.dart';
 import 'habit/habit_add_request.dart';
 import 'habit/habit_response.dart';
+import 'habit/habit_update_request.dart';
 import 'login_request.dart';
+import 'login_response.dart';
+import 'member_response.dart';
+import 'three_days_api_exception.dart';
 import 'three_days_api_response.dart';
 
 class ThreeDaysApi {
@@ -21,8 +21,8 @@ class ThreeDaysApi {
 
   late SessionRepository _sessionRepository;
 
-  set sessionRepository(SessionRepository value) {
-    _sessionRepository = value;
+  set sessionRepository(SessionRepository sessionRepository) {
+    _sessionRepository = sessionRepository;
   }
 
   // FIXME:
@@ -44,29 +44,42 @@ class ThreeDaysApi {
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           body: json.encode(loginRequest.toMap()),
         )
-        .then((value) => json.decode(value.body))
+        .then((value) => json.decode(utf8.decode(value.bodyBytes)))
         .then((value) => ThreeDaysApiResponse.loginData(value));
   }
 
   /// 내 정보 조회
-  Future<ThreeDaysApiResponse<MemberResponse?>> getMyInfo({
-    required String accessToken,
-  }) async {
+  Future<ThreeDaysApiResponse<MemberResponse?>> getMyInfo() async {
     return http
         .get(
           Uri.https(_host, '/api/v1/members/me'),
           headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $accessToken',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
           },
         )
         .then((value) => decodeIfSuccess(value))
         .then((value) => ThreeDaysApiResponse.memberData(value));
   }
 
+  /// 회원 탈퇴
+  Future<ThreeDaysApiResponse> withdraw() async {
+    return http
+        .delete(
+          Uri.https(_host, '/api/v1/members'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
+          },
+        )
+        .then((value) => decodeIfSuccess(value))
+        .then((value) => ThreeDaysApiResponse.emptyData(value));
+  }
+
   /// 습관 목록 조회
-  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits(
-      {HabitStatus? habitStatus}) async {
+  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits({
+    HabitStatus? habitStatus,
+  }) async {
     Map<String, dynamic> queryParameters = {};
     if (habitStatus != null) {
       queryParameters['status'] = habitStatus.name.toUpperCase();
@@ -93,7 +106,7 @@ class ThreeDaysApi {
 
   dynamic decodeIfSuccess(Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json.decode(response.body);
+      return json.decode(utf8.decode(response.bodyBytes));
     }
     if (response.statusCode >= 400 && response.statusCode < 500) {
       if (response.statusCode == 401) {
@@ -156,6 +169,7 @@ class ThreeDaysApi {
         .then((value) => ThreeDaysApiResponse.habitData(value));
   }
 
+  /// 습관 삭제
   Future<ThreeDaysApiResponse> delete({required int habitId}) async {
     return http
         .delete(

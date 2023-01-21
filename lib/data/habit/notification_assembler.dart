@@ -1,4 +1,4 @@
-import 'package:three_days/domain/notification_request_vo.dart';
+import 'package:three_days/domain/habit/notification_request_vo.dart';
 
 import 'notification_add_request.dart';
 
