@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:three_days/auth/login_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:three_days/auth/session_repository.dart';
+import 'package:three_days/data/habit/habit_update_request.dart';
 import 'package:three_days/data/login_response.dart';
 import 'package:three_days/data/member_response.dart';
 import 'package:three_days/data/three_days_api_exception.dart';
@@ -64,9 +65,8 @@ class ThreeDaysApi {
   }
 
   /// 습관 목록 조회
-  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits({
-    HabitStatus? habitStatus
-  }) async {
+  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits(
+      {HabitStatus? habitStatus}) async {
     Map<String, dynamic> queryParameters = {};
     if (habitStatus != null) {
       queryParameters['status'] = habitStatus.name.toUpperCase();
@@ -99,9 +99,26 @@ class ThreeDaysApi {
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }
-      throw ThreeDaysApiException('클라이언트 에러. ${utf8.decode(response.bodyBytes)}');
+      throw ThreeDaysApiException(
+          '클라이언트 에러. ${utf8.decode(response.bodyBytes)}');
     }
     throw ThreeDaysApiException('서버 에러. ${utf8.decode(response.bodyBytes)}');
+  }
+
+  /// 습관 1개 조회
+  Future<ThreeDaysApiResponse<HabitResponse>> getHabit({
+    required int habitId,
+  }) async {
+    return http
+        .get(
+          Uri.https(_host, '/api/v1/habits/$habitId'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
+          },
+        )
+        .then((value) => decodeIfSuccess(value))
+        .then((value) => ThreeDaysApiResponse.habitData(value));
   }
 
   /// 습관 생성
@@ -121,15 +138,33 @@ class ThreeDaysApi {
         .then((value) => ThreeDaysApiResponse.habitData(value));
   }
 
+  /// 습관 수정
+  Future<ThreeDaysApiResponse<HabitResponse>> updateHabit({
+    required int habitId,
+    required HabitUpdateRequest habitUpdateRequest,
+  }) async {
+    return http
+        .put(
+          Uri.https(_host, '/api/v1/habits/$habitId}'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
+          },
+          body: json.encode(habitUpdateRequest.toMap()),
+        )
+        .then((value) => decodeIfSuccess(value))
+        .then((value) => ThreeDaysApiResponse.habitData(value));
+  }
+
   Future<ThreeDaysApiResponse> delete({required int habitId}) async {
     return http
         .delete(
-      Uri.https(_host, '/api/v1/habits/$habitId'),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ${await _getAccessToken()}',
-      },
-    )
+          Uri.https(_host, '/api/v1/habits/$habitId'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
+          },
+        )
         .then((value) => decodeIfSuccess(value))
         .then((value) => ThreeDaysApiResponse.emptyData(value));
   }

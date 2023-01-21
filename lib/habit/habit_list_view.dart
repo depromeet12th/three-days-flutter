@@ -167,10 +167,7 @@ class _HabitListViewState extends State<HabitListView> {
                   ),
                 ),
                 onTap: () async {
-                  await Navigator.of(context).pushNamed(
-                    '/habit/edit',
-                    arguments: habit,
-                  );
+                  await Navigator.of(context).pushNamed('/habit/${habit.habitId}/edit');
                   if (!mounted) {
                     return;
                   }

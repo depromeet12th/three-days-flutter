@@ -1,12 +1,16 @@
-import 'package:three_days/data/habit/habit_assembler.dart';
-import 'package:three_days/data/three_days_api.dart';
-import 'package:three_days/domain/habit.dart';
-import 'package:three_days/domain/habit_add_request_vo.dart';
-import 'package:three_days/domain/habit_repository.dart';
+import 'package:flutter/foundation.dart';
+import 'package:three_days/util/extensions.dart';
 
 import '../../auth/session_repository.dart';
+import '../../domain/habit.dart';
+import '../../domain/habit_add_request_vo.dart';
+import '../../domain/habit_repository.dart';
 import '../../domain/habit_status.dart';
+import '../../domain/habit_update_request_vo.dart';
+import '../three_days_api.dart';
 import 'habit_add_request.dart';
+import 'habit_assembler.dart';
+import 'habit_update_request.dart';
 
 class HabitRepositoryImpl implements HabitRepository {
   final ThreeDaysApi threeDaysApi;
@@ -38,10 +42,23 @@ class HabitRepositoryImpl implements HabitRepository {
     );
     return apiResponse.data!
         .map((e) => Habit(
-      habitId: e.id,
-      title: e.title,
-    ))
+              habitId: e.id,
+              title: e.title,
+            ))
         .toList();
+  }
+
+  @override
+  Future<Habit?> findById({
+    required int habitId,
+  }) async {
+    final apiResponse = await threeDaysApi.getHabit(
+      habitId: habitId,
+    );
+    return apiResponse.data?.let((e) => Habit(
+          habitId: e.id,
+          title: e.title,
+        ));
   }
 
   @override
@@ -55,8 +72,19 @@ class HabitRepositoryImpl implements HabitRepository {
     return habitAssembler.toHabit(habitResponse: apiResponse.data!);
   }
 
-  Future<Habit> updateHabit(Habit habit) async {
-    return habit;
+  @override
+  Future<Habit> updateHabit({
+    required int habitId,
+    required HabitUpdateRequestVo habitUpdateRequestVo,
+  }) async {
+    HabitUpdateRequest habitUpdateRequest = habitAssembler.toHabitUpdateRequest(
+      habitUpdateRequestVo: habitUpdateRequestVo,
+    );
+    final apiResponse = await threeDaysApi.updateHabit(
+      habitId: habitId,
+      habitUpdateRequest: habitUpdateRequest,
+    );
+    return habitAssembler.toHabit(habitResponse: apiResponse.data!);
   }
 
   @override
@@ -64,6 +92,8 @@ class HabitRepositoryImpl implements HabitRepository {
     required int habitId,
   }) async {
     final apiResponse = await threeDaysApi.delete(habitId: habitId);
-    print(apiResponse);
+    if (kDebugMode) {
+      print(apiResponse);
+    }
   }
 }
