@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:three_days/domain/habit_repository.dart';
+import 'package:three_days/domain/habit/habit_repository.dart';
 
-import '../domain/habit.dart';
+import '../domain/habit/habit.dart';
 
 class HabitCard extends StatefulWidget {
   final Habit habit;

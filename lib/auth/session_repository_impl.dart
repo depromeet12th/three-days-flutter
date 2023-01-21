@@ -23,8 +23,7 @@ class SessionRepositoryImpl implements SessionRepository {
       return false;
     }
     // api 호출해서 accessToken 이 유효한지 검사
-    final myInfoResponse =
-    await threeDaysApi.getMyInfo(accessToken: accessToken);
+    final myInfoResponse = await threeDaysApi.getMyInfo();
     return myInfoResponse.code == 'success';
   }
 

@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:three_days/domain/habit_add_request_vo.dart';
 
-import '../habit_repository.dart';
+import 'habit_add_request_vo.dart';
 import 'habit_add_state.dart';
+import 'habit_repository.dart';
 
 class HabitAddCubit extends Cubit<HabitAddState> {
   final HabitRepository habitRepository;
@@ -12,7 +13,9 @@ class HabitAddCubit extends Cubit<HabitAddState> {
   }) : super(HabitAddCannotSubmitState());
 
   void validate(HabitAddRequestVo habitAddRequestVo) {
-    print('validate: $habitAddRequestVo');
+    if (kDebugMode) {
+      print('validate: $habitAddRequestVo');
+    }
     if (habitAddRequestVo.isValid()) {
       emit(HabitAddReadyState());
     } else {
@@ -21,7 +24,9 @@ class HabitAddCubit extends Cubit<HabitAddState> {
   }
 
   Future<void> submit(HabitAddRequestVo habitAddRequestVo) async {
-    print('submit: $habitAddRequestVo');
+    if (kDebugMode) {
+      print('submit: $habitAddRequestVo');
+    }
     emit(HabitAddProcessingState());
     return await habitRepository
         .createHabit(habitAddRequestVo: habitAddRequestVo)

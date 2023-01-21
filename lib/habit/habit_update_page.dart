@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:three_days/domain/habit/habit_update_cubit.dart';
-import 'package:three_days/domain/habit_repository.dart';
 
-import '../domain/habit.dart';
+import '../domain/habit/habit.dart';
+import '../domain/habit/habit_repository.dart';
+import '../domain/habit/habit_update_cubit.dart';
 import 'habit_update_view.dart';
 
 class HabitUpdatePage extends StatelessWidget {

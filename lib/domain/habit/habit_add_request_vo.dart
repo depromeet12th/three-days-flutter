@@ -1,7 +1,7 @@
 import 'package:three_days/domain/day_of_week.dart';
 
-import 'habit_color.dart';
 import 'notification_request_vo.dart';
+import 'habit_color.dart';
 
 class HabitAddRequestVo {
   final String emoji;

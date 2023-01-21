@@ -1,6 +1,6 @@
-import 'day_of_week.dart';
-import 'habit_color.dart';
+import '../day_of_week.dart';
 import 'notification_request_vo.dart';
+import 'habit_color.dart';
 
 class HabitUpdateRequestVo {
   final String emoji;

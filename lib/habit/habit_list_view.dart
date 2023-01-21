@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:three_days/auth/unauthorized_exception.dart';
-import 'package:three_days/domain/habit_repository.dart';
-import 'package:three_days/domain/habit_status.dart';
+import 'package:three_days/domain/habit/habit_repository.dart';
 
-import '../domain/habit.dart';
+import '../domain/habit/habit.dart';
+import '../domain/habit/habit_status.dart';
 import 'habit_card.dart';
 
 class HabitListView extends StatefulWidget {

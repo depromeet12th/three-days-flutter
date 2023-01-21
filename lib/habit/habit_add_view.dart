@@ -9,9 +9,9 @@ import '../design/three_days_text_form_field.dart';
 import '../design/time_selector_widget.dart';
 import '../domain/day_of_week.dart';
 import '../domain/habit/habit_add_cubit.dart';
+import '../domain/habit/habit_add_request_vo.dart';
 import '../domain/habit/habit_add_state.dart';
-import '../domain/habit_add_request_vo.dart';
-import '../domain/habit_color.dart';
+import '../domain/habit/habit_color.dart';
 
 class HabitAddView extends StatefulWidget {
   const HabitAddView({super.key});
