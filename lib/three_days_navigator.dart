@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:three_days/auth/login_screen.dart';
 import 'package:three_days/auth/session/session_cubit.dart';
 import 'package:three_days/habit/habit_add_page.dart';
+import 'package:three_days/habit/habit_edit_page.dart';
 import 'package:three_days/home/home_page.dart';
 import 'package:three_days/splash_screen.dart';
 
@@ -19,6 +20,9 @@ class ThreeDaysNavigator extends StatelessWidget {
           onGenerateRoute: (RouteSettings settings) {
             if (settings.name == '/habit/add') {
               return MaterialPageRoute(builder: (context) => HabitAddPage());
+            }
+            if (settings.name == '/habit/edit') {
+              return MaterialPageRoute(builder: (context) => HabitEditPage());
             }
           },
         );

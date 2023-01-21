@@ -19,6 +19,14 @@ class ThreeDaysApiResponse<T> {
     return 'ThreeDaysApiResponse{code: $code, message: $message, data: $data}';
   }
 
+  static ThreeDaysApiResponse emptyData(Map<String, dynamic> json) {
+    return ThreeDaysApiResponse(
+      code: json['code'] as String,
+      message: json['message'] as String,
+      data: null,
+    );
+  }
+
   static ThreeDaysApiResponse<LoginResponse?> loginData(
       Map<String, dynamic> json) {
     return ThreeDaysApiResponse(

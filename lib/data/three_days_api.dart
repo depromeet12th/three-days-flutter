@@ -9,6 +9,7 @@ import 'package:three_days/data/member_response.dart';
 import 'package:three_days/data/three_days_api_exception.dart';
 
 import '../auth/unauthorized_exception.dart';
+import '../domain/habit_status.dart';
 import 'habit/habit_add_request.dart';
 import 'habit/habit_response.dart';
 import 'login_request.dart';
@@ -63,10 +64,16 @@ class ThreeDaysApi {
   }
 
   /// 습관 목록 조회
-  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits() async {
+  Future<ThreeDaysApiResponse<List<HabitResponse>>> getHabits({
+    HabitStatus? habitStatus
+  }) async {
+    Map<String, dynamic> queryParameters = {};
+    if (habitStatus != null) {
+      queryParameters['status'] = habitStatus.name.toUpperCase();
+    }
     return http
         .get(
-          Uri.https(_host, '/api/v1/habits'),
+          Uri.https(_host, '/api/v1/habits', queryParameters),
           headers: {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer ${await _getAccessToken()}',
@@ -112,5 +119,18 @@ class ThreeDaysApi {
         )
         .then((value) => decodeIfSuccess(value))
         .then((value) => ThreeDaysApiResponse.habitData(value));
+  }
+
+  Future<ThreeDaysApiResponse> delete({required int habitId}) async {
+    return http
+        .delete(
+      Uri.https(_host, '/api/v1/habits/$habitId'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${await _getAccessToken()}',
+      },
+    )
+        .then((value) => decodeIfSuccess(value))
+        .then((value) => ThreeDaysApiResponse.emptyData(value));
   }
 }

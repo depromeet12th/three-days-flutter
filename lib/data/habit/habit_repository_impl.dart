@@ -5,6 +5,7 @@ import 'package:three_days/domain/habit_add_request_vo.dart';
 import 'package:three_days/domain/habit_repository.dart';
 
 import '../../auth/session_repository.dart';
+import '../../domain/habit_status.dart';
 import 'habit_add_request.dart';
 
 class HabitRepositoryImpl implements HabitRepository {
@@ -29,6 +30,21 @@ class HabitRepositoryImpl implements HabitRepository {
   }
 
   @override
+  Future<List<Habit>> findByStatus({
+    required HabitStatus habitStatus,
+  }) async {
+    final apiResponse = await threeDaysApi.getHabits(
+      habitStatus: HabitStatus.active,
+    );
+    return apiResponse.data!
+        .map((e) => Habit(
+      habitId: e.id,
+      title: e.title,
+    ))
+        .toList();
+  }
+
+  @override
   Future<Habit> createHabit({
     required HabitAddRequestVo habitAddRequestVo,
   }) async {
@@ -41,5 +57,13 @@ class HabitRepositoryImpl implements HabitRepository {
 
   Future<Habit> updateHabit(Habit habit) async {
     return habit;
+  }
+
+  @override
+  Future<void> delete({
+    required int habitId,
+  }) async {
+    final apiResponse = await threeDaysApi.delete(habitId: habitId);
+    print(apiResponse);
   }
 }
