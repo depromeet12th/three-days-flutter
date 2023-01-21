@@ -1,6 +1,5 @@
-import 'package:three_days/auth/unauthorized_exception.dart';
-import 'package:three_days/data/habit_response.dart';
-import 'package:three_days/data/member_response.dart';
+import './../data/habit/habit_response.dart';
+import './../data/member_response.dart';
 
 import 'login_response.dart';
 
@@ -38,13 +37,22 @@ class ThreeDaysApiResponse<T> {
     );
   }
 
-  static ThreeDaysApiResponse<List<HabitResponse>> habitData(
+  static ThreeDaysApiResponse<List<HabitResponse>> habitListData(
       Map<String, dynamic> json) {
     return ThreeDaysApiResponse(
       code: json['code'] as String,
       message: json['message'] as String,
       data:
           (json['data'] as List).map((e) => HabitResponse.fromJson(e)).toList(),
+    );
+  }
+
+  static ThreeDaysApiResponse<HabitResponse> habitData(
+      Map<String, dynamic> json) {
+    return ThreeDaysApiResponse(
+      code: json['code'] as String,
+      message: json['message'] as String,
+      data: HabitResponse.fromJson(json['data']),
     );
   }
 }

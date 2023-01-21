@@ -4,12 +4,13 @@ import 'package:http/http.dart';
 import 'package:three_days/auth/login_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:three_days/auth/session_repository.dart';
-import 'package:three_days/data/habit_response.dart';
 import 'package:three_days/data/login_response.dart';
 import 'package:three_days/data/member_response.dart';
 import 'package:three_days/data/three_days_api_exception.dart';
 
 import '../auth/unauthorized_exception.dart';
+import 'habit/habit_add_request.dart';
+import 'habit/habit_response.dart';
 import 'login_request.dart';
 import 'three_days_api_response.dart';
 
@@ -72,7 +73,7 @@ class ThreeDaysApi {
           },
         )
         .then((value) => decodeIfSuccess(value))
-        .then((value) => ThreeDaysApiResponse.habitData(value));
+        .then((value) => ThreeDaysApiResponse.habitListData(value));
   }
 
   Future<String> _getAccessToken() async {
@@ -91,8 +92,25 @@ class ThreeDaysApi {
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }
-      throw ThreeDaysApiException('클라이언트 에러. ${json.decode(response.body)}');
+      throw ThreeDaysApiException('클라이언트 에러. ${utf8.decode(response.bodyBytes)}');
     }
-    throw ThreeDaysApiException('서버 에러. ${json.decode(response.body)}');
+    throw ThreeDaysApiException('서버 에러. ${utf8.decode(response.bodyBytes)}');
+  }
+
+  /// 습관 생성
+  Future<ThreeDaysApiResponse<HabitResponse>> createHabit(
+    HabitAddRequest habitAddRequest,
+  ) async {
+    return http
+        .post(
+          Uri.https(_host, '/api/v1/habits'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer ${await _getAccessToken()}',
+          },
+          body: json.encode(habitAddRequest.toMap()),
+        )
+        .then((value) => decodeIfSuccess(value))
+        .then((value) => ThreeDaysApiResponse.habitData(value));
   }
 }

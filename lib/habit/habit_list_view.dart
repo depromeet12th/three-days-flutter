@@ -5,8 +5,26 @@ import 'package:three_days/domain/habit_repository.dart';
 
 import '../domain/habit.dart';
 
-class HabitListView extends StatelessWidget {
+class HabitListView extends StatefulWidget {
   const HabitListView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _HabitListViewState();
+}
+
+class _HabitListViewState extends State<HabitListView> {
+
+  late int? createdHabitId;
+  late int? updatedHabitId;
+  late int? deletedHabitId;
+
+  @override
+  void initState() {
+    super.initState();
+    createdHabitId = null;
+    updatedHabitId = null;
+    deletedHabitId = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +113,13 @@ class HabitListView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
-        onTapUp: (_) {
-          Navigator.of(context).pushNamed('/habit/add');
+        onTapUp: (_) async {
+          final habitId = await Navigator.of(context).pushNamed('/habit/add') as int?;
+          if (habitId != null) {
+            setState(() {
+              createdHabitId = habitId;
+            });
+          }
         },
         child: SizedBox(
           height: 140,

@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:three_days/auth/login_repository.dart';
-import 'package:three_days/auth/login_screen.dart';
 import 'package:three_days/auth/logout_repository.dart';
 import 'package:three_days/auth/session/session_cubit.dart';
-import 'package:three_days/bottom_navigation/cubit/navigation_cubit.dart';
 import 'package:three_days/domain/habit_repository.dart';
-import 'package:three_days/splash_screen.dart';
 
 import 'auth/session_repository.dart';
 import 'auth/session_repository_impl.dart';
-import 'data/habit_repository_impl.dart';
+import 'data/habit/habit_repository_impl.dart';
 import 'data/three_days_api.dart';
-import 'home/home_page.dart';
 import 'three_days_navigator.dart';
 
 class ThreeDaysApp extends StatelessWidget {

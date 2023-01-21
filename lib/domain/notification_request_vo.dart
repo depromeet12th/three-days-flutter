@@ -7,4 +7,9 @@ class NotificationRequestVo {
     required this.notificationTime,
     required this.notificationContent,
   });
+
+  @override
+  String toString() {
+    return 'NotificationRequestVo{notificationTime: $notificationTime, notificationContent: $notificationContent}';
+  }
 }

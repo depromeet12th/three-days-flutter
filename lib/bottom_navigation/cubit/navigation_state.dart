@@ -1,6 +1,6 @@
 part of 'navigation_cubit.dart';
 
-class NavigationState extends Equatable {
+class NavigationState implements Equatable {
   final ThreeDaysNavigationBarItem item;
   final int index;
 
@@ -17,4 +17,7 @@ class NavigationState extends Equatable {
 
   @override
   List<Object?> get props => [item, index];
+
+  @override
+  bool? get stringify => true;
 }
