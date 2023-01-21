@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:three_days/mypage/mypage_page.dart';
 
 import '../bottom_navigation/cubit/navigation_cubit.dart';
-import '../habit/habit_page.dart';
+import '../habit/habit_list_page.dart';
 import '../history/history_page.dart';
 import '../mate/mate_page.dart';
 
@@ -22,7 +22,7 @@ class _HomeViewState extends State<HomeView> {
         body: BlocBuilder<NavigationCubit, NavigationState>(
           builder: (context, state) {
             if (state.item == ThreeDaysNavigationBarItem.habit) {
-              return HabitPage();
+              return HabitListPage();
             }
             if (state.item == ThreeDaysNavigationBarItem.history) {
               return HistoryPage();

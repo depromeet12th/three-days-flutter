@@ -3,11 +3,16 @@ import 'package:three_days/auth/session_repository.dart';
 import '../data/three_days_api.dart';
 
 class LogoutRepository {
-  final _threeDaysApi = const ThreeDaysApi();
-  final _sessionRepository = SessionRepository();
+  final ThreeDaysApi threeDaysApi;
+  final SessionRepository sessionRepository;
+
+  LogoutRepository({
+    required this.threeDaysApi,
+    required this.sessionRepository,
+  });
 
   Future<void> logout() async {
-    _sessionRepository.removeAccessToken();
+    sessionRepository.removeAccessToken();
     // TODO: logout api
   }
 }

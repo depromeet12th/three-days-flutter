@@ -1,39 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:three_days/auth/login_screen.dart';
-import 'package:three_days/splash_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:three_days/auth/login_repository.dart';
+import 'package:three_days/auth/logout_repository.dart';
+import 'package:three_days/auth/session/session_cubit.dart';
+import 'package:three_days/domain/habit_repository.dart';
 
-import 'home/home_page.dart';
+import 'auth/session_repository.dart';
+import 'auth/session_repository_impl.dart';
+import 'data/habit/habit_repository_impl.dart';
+import 'data/three_days_api.dart';
+import 'three_days_navigator.dart';
 
 class ThreeDaysApp extends StatelessWidget {
   const ThreeDaysApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+    final threeDaysApi = ThreeDaysApi();
+    final sessionRepository = SessionRepositoryImpl(threeDaysApi: threeDaysApi);
+    threeDaysApi.sessionRepository = sessionRepository;
+    final loginRepository = LoginRepository(
+      threeDaysApi: threeDaysApi,
+      sessionRepository: sessionRepository,
+    );
+    final logoutRepository = LogoutRepository(
+      threeDaysApi: threeDaysApi,
+      sessionRepository: sessionRepository,
+    );
+    final habitRepository = HabitRepositoryImpl(
+      threeDaysApi: threeDaysApi,
+      sessionRepository: sessionRepository,
+    );
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<SessionRepository>(create: (_) => sessionRepository),
+        RepositoryProvider(create: (_) => loginRepository),
+        RepositoryProvider(create: (_) => logoutRepository),
+        RepositoryProvider<HabitRepository>(create: (_) => habitRepository),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => SessionCubit(
+            loginRepository: loginRepository,
+            logoutRepository: logoutRepository,
+          )),
+        ],
+        child: MaterialApp(
+          title: '짝심삼일',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: ThreeDaysNavigator(),
+        ),
       ),
-      initialRoute: '/',
-      onGenerateRoute: (RouteSettings settings) {
-        if (settings.name == '/') {
-          return MaterialPageRoute(builder: (context) => SplashScreen());
-        } else if (settings.name == '/home') {
-          return MaterialPageRoute(builder: (context) => HomePage());
-        } else if (settings.name == '/login') {
-          return MaterialPageRoute(builder: (context) => LoginScreen());
-        }
-      },
     );
   }
 }
